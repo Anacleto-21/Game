@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html id="body" touch-action="none">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Snake</title>
+        <style>
+            html {
+                text-align: center;
+                font-family: 'Courier New', courier, monospace;
+            }
+            body {
+                overscroll-behavior: none;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <h1>Snake</h1>
+        <br>
+        <p>Score: <div id="score">0</div></p>
+        <canvas id="schermo"></canvas>
+        <script>
+            //schetmo di gioco
+            let schermo;
+            let schermoWidth = 340;
+            let schermoHeight = 340;
+            
+            //snake
+            //head
+            let snakeWidth = 20;
+            let snakeHeight = 20;
+            let snakeX = 100;
+            let snakeY = 100;
+            //body
+            let snakeBody = [];
+            
+            //mela
+            let melaWidth = 20;
+            let melaHeight = 20;
+            let melaX;
+            let melaY;
+            
+            //movimento
+            let startX;
+            let startY;
+            
+            let moveR = false;
+            let moveL = false;
+            let moveU = false;
+            let moveD = false;
+            
+            let currentX;
+            let currentY;
+            
+            let deltaX;
+            let deltaY;
+            
+            //giocoOn
+            let giocoOn = true;
+            
+            //gameOver
+            let gameOver = false;
+            
+            //body
+            let body = document.getElementById("body");
+            
+            //score
+            let score = document.getElementById("score");
+            score = 0;
+            
+            //context
+            let context;
+            
+            
+            
+            //caricamento pagina 
+            window.onload = function() {
+                schermo = document.getElementById("schermo");
+                schermo.width = schermoWidth;
+                schermo.height = schermoHeight;
+                
+                context = schermo.getContext("2d");
+                
+                moveSnake();
+                placeApple();
+                setInterval(update, 100);
+            }
+            
+            //funzione update 
+            function update() {
+                if(giocoOn) {
+                context.fillStyle = "black";
+                context.fillRect(0, 0, schermoWidth, schermoHeight)
+                
+                context.fillStyle = "lime";
+                context.fillRect(snakeX, snakeY, snakeWidth, snakeHeight);
+                
+                //controllo game over
+                checkGameOver();
+                
+                if(gameOver) {
+                    alert("Game Over");
+                    gameOver = false;
+                    giocoOn = false;
+                }
+                
+                if(snakeX === melaX && snakeY === melaY) {
+                        placeApple();
+                        
+                        score += 1;
+                        document.getElementById("score").innerText = score;
+                        
+                        snakeBody.push([melaX, melaY]);
+                }
+                
+                for(let i = snakeBody.length - 1; i > 0; i--) {
+                    snakeBody[i] = snakeBody[i - 1];
+                }
+                
+                if(true) {
+                    snakeBody[0] = [snakeX, snakeY];
+                }
+                
+                context.fillStyle = "red";
+                context.fillRect(melaX, melaY, melaWidth, melaHeight);
+                
+                for(let i = 0; i < snakeBody.length; i++) {
+                        context.fillStyle = "lime";
+                        context.fillRect(snakeBody[i][0], snakeBody[i][1], 20, 20);
+                    }
+                }
+            }
+            
+            //funzione placeApple 
+            function placeApple() {
+                melaX = Math.floor(Math.random() * 17) * 20;
+                melaY = Math.floor(Math.random() * 17) * 20;
+            }
+            
+            //funzione moveSnake 
+            function moveSnake() {
+                setInterval(function() {
+                    if(moveR === true && moveL === false) {
+                        snakeX += 20;
+                    }
+                    if(moveL === true && moveR === false) {
+                        snakeX -= 20;
+                    }
+                    if(moveU === true && moveD === false) {
+                        snakeY -= 20;
+                    }
+                    if(moveD === true && moveU === false) {
+                        snakeY += 20;
+                    }
+                }, 100);
+            }
+            
+            
+            //eventi tocco
+            body.addEventListener("touchstart", function(event) {
+                startX = event.touches[0].clientX;
+                startY = event.touches[0].clientY;
+                event.preventDefault();
+            });
+            
+            body.addEventListener("touchmove", function(event) {
+                currentX = event.touches[0].clientX;
+                currentY = event.touches[0].clientY
+                
+                deltaX = currentX - startX;
+                deltaY = currentY - startY;
+                
+                if(Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if(deltaX > 0 && moveL === false) {
+                        moveR = true;
+                        moveL = false;
+                        moveU = false;
+                        moveD = false;
+                    } else if(deltaX < 0 && moveR === false){
+                        moveL = true;
+                        moveR = false;
+                        moveU = false;
+                        moveD = false;
+                    }
+                } else {
+                    if(deltaY > 0 && moveU === false) {
+                        moveD = true;
+                        moveU = false;
+                        moveR = false;
+                        moveL = false;
+                    } else if(deltaY < 0 && moveD === false) {
+                        moveU = true;
+                        moveD = false;
+                        moveR = false;
+                        moveL = false;
+                    }
+                }
+                
+                startX = currentX;
+                startY = currentY;
+                event.preventDefault();
+            });
+            
+            //gameOver 
+            function checkGameOver() {
+                if(snakeX < 0 || snakeX > 350 || snakeY < 0 || snakeY > 350) {
+                    gameOver = true;
+                }
+                
+                for(let i = 1; i < snakeBody.length; i++) {
+                    if(snakeX === snakeBody[i][0] && snakeY === snakeBody[i][1]) {
+                        gameOver = true;
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
